@@ -523,10 +523,20 @@ static int mdss_fb_probe(struct platform_device *pdev)
 		mfd->mdp_sync_pt_data.threshold = 1;
 	else
 		mfd->mdp_sync_pt_data.threshold = 2;
-#if defined(CONFIG_HUAWEI_KERNEL) && defined(CONFIG_DEBUG_FS)
-	/* init lcd debugfs interface */
-	lcd_debugfs_init();
-#endif
+		mfd->mdp_sync_pt_data.retire_threshold = 0;
+		break;
+	}
+
+	if (mfd->splash_logo_enabled) {
+		mfd->splash_thread = kthread_run(mdss_fb_splash_thread, mfd,
+				"mdss_fb_splash");
+		if (IS_ERR(mfd->splash_thread)) {
+			pr_err("unable to start splash thread %d\n",
+				mfd->index);
+			mfd->splash_thread = NULL;
+		}
+	}
+
 	return rc;
 }
 
