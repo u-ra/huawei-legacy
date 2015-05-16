@@ -284,7 +284,8 @@ static ssize_t mdss_show_inversion_mode(struct device *dev,
 	struct fb_info *fbi = dev_get_drvdata(dev);
 	struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)fbi->par;
 	int ret;
-	LCD_LOG_DBG("fb%d inversion mode = %d\n", mfd->index, mfd->panel_info->inversion_mode);
+	pr_debug("%s: fb%d inversion mode=%d\n", __func__, mfd->index,
+		 mfd->panel_info->inversion_mode);
 	ret = scnprintf(buf, PAGE_SIZE, "%d\n",mfd->panel_info->inversion_mode);
 	return ret;
 }
@@ -314,7 +315,8 @@ static ssize_t mdss_store_inversion_mode(struct device *dev,
 	}
 	else
 	{
-		LCD_LOG_ERR("This panel maybe sleep ,or can not support set inversion mode\n");
+		pr_err("%s: This panel maybe sleep, or can not support set inversion mode\n",
+		       __func__);
 		return -EINVAL;
 	}
 	return count;
@@ -336,7 +338,8 @@ static ssize_t mdss_show_panel_status(struct device *dev,
 	}
 	else
 	{
-		LCD_LOG_ERR("This panel maybe sleep ,or can not support check panel status\n");
+		pr_err("%s: This panel maybe sleep, or can not support check panel status\n",
+		       __func__);
 	}
 	
 	ret = scnprintf(buf, PAGE_SIZE, "%d\n",ret);
@@ -771,7 +774,8 @@ void mdss_fb_set_backlight(struct msm_fb_data_type *mfd, u32 bkl_lvl)
 	int (*update_ad_input)(struct msm_fb_data_type *mfd);
 	u32 temp = bkl_lvl;
 	
-	LCD_LOG_DBG("%s: bl_updated = %d, bkl_lvl = %d\n",__func__,mfd->bl_updated,bkl_lvl);
+	pr_debug("%s: bl_updated = %d, bkl_lvl = %d\n", __func__,
+		 mfd->bl_updated, bkl_lvl);
 	if (((!mfd->panel_power_on && mfd->dcm_state != DCM_ENTER)
 		|| !mfd->bl_updated) && !IS_CALIB_MODE_BL(mfd)) {
 		mfd->unset_bl_level = bkl_lvl;
@@ -823,7 +827,6 @@ void mdss_fb_update_backlight_wq_handler(struct work_struct *work)
 	struct msm_fb_data_type *mfd;
 	mfd = container_of(to_delayed_work(work), struct msm_fb_data_type, bkl_work);
 	
-	LCD_LOG_DBG("%s: enter\n",__func__);
 	mutex_lock(&mfd->bl_lock);
 	if (mfd->unset_bl_level) {
 		pdata = dev_get_platdata(&mfd->pdev->dev);
@@ -832,7 +835,7 @@ void mdss_fb_update_backlight_wq_handler(struct work_struct *work)
 			pdata->set_backlight(pdata, mfd->bl_level);
 			mfd->bl_level_old = mfd->unset_bl_level;
 			mfd->unset_bl_level = 0;
-			LCD_LOG_INFO("%s: set backlight to %d\n",__func__,mfd->bl_level);
+			pr_info("%s: set backlight to %d\n", __func__, mfd->bl_level);
 		}
 	}
 	mfd->bl_updated = 1;
@@ -875,7 +878,7 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 #ifdef CONFIG_HUAWEI_LCD
 	pdata = dev_get_platdata(&mfd->pdev->dev);
 	if (!pdata) {
-		LCD_LOG_ERR( "mdss_fb_blank_sub: no panel operation detected!\n");
+		pr_err("%s: no panel operation detected!\n", __func__);
 		return -ENODEV;
 	}
 #endif
@@ -910,7 +913,8 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 				{
 					mdss_fb_config_cabc(mfd, last_cabc_mode);
 					last_cabc_setting =false;
-					LCD_LOG_INFO("%s:Waiting for LCD resume ,then set cabc mode =%d\n",__func__,last_cabc_mode.mode);
+					pr_info("%s: Waiting for LCD resume, then set cabc mode=%d\n",
+						__func__, last_cabc_mode.mode);
 				}
 				#endif
 			}
@@ -936,7 +940,7 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 			curr_pwr_state = mfd->panel_power_on;
 			mfd->panel_power_on = false;
 			cancel_delayed_work_sync(&mfd->bkl_work);
-			LCD_LOG_DBG("%s: cancle bkl_delay work \n",__func__);
+			pr_debug("%s: cancel bkl_delay work\n", __func__);
 			ret = mfd->mdp.off_fnc(mfd);
 			if (ret)
 				mfd->panel_power_on = curr_pwr_state;
@@ -944,7 +948,8 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 				mdss_fb_release_fences(mfd);
 			mfd->op_enable = true;
 			mfd->bl_updated = 0;
-			LCD_LOG_DBG("%s: bl_updated set as 0 when panel off \n",__func__);
+			pr_debug("%s: bl_updated set as 0 when panel off\n",
+				 __func__);
 			complete(&mfd->power_off_comp);
 		}
 		break;
@@ -1823,7 +1828,8 @@ static int __mdss_fb_perform_commit(struct msm_fb_data_type *mfd)
 	if (!ret)
 	{
 	#ifdef CONFIG_HUAWEI_LCD
-		LCD_LOG_DBG("%s:%d schedule work delaytime=%d ms\n",__func__,__LINE__,mfd->panel_info->delaytime_before_bl);
+		pr_debug("%s: schedule work delaytime=%d ms\n", __func__,
+			 mfd->panel_info->delaytime_before_bl);
 		schedule_delayed_work(&mfd->bkl_work,msecs_to_jiffies(mfd->panel_info->delaytime_before_bl));
 	#else
 		mdss_fb_update_backlight(mfd);
@@ -2181,7 +2187,8 @@ static int msm_fb_set_display_inversion(struct msm_fb_data_type *mfd, unsigned i
 	}
 	else
 	{
-		LCD_LOG_ERR("This panel maybe sleep ,or can not support display inversion function\n");
+		pr_err("%s: This panel maybe sleep, or can not support display inversion function\n",
+		       __func__);
 		ret = -EINVAL;
 	}
 
@@ -2380,8 +2387,8 @@ static int mdss_fb_ioctl(struct fb_info *info, unsigned int cmd,
 		ret = copy_from_user(&cabc_cfg, argp, sizeof(cabc_cfg));
 		if (ret)
 		{
-			LCD_LOG_ERR( "%s:MSMFB_AUTO_CABC ioctl failed \n",
-			 __func__);
+			pr_err("%s: MSMFB_AUTO_CABC ioctl failed \n",
+			       __func__);
 			return ret;
 		}
 
@@ -2390,7 +2397,7 @@ static int mdss_fb_ioctl(struct fb_info *info, unsigned int cmd,
 		{
 			last_cabc_mode = cabc_cfg;
 			last_cabc_setting =true;
-			LCD_LOG_INFO("%s:MSMFB_AUTO_CABC save last setting \n",
+			pr_info("%s: MSMFB_AUTO_CABC save last setting\n",
 				__func__);
 		}
 		else
@@ -2404,13 +2411,15 @@ static int mdss_fb_ioctl(struct fb_info *info, unsigned int cmd,
 	case MSMFB_DISPLAY_INVERSION:
 		ret = copy_from_user(&lcd_display_inversion, argp, sizeof(lcd_display_inversion));
 		if (ret){
-			LCD_LOG_ERR("%s:MSMFB_DISPLAY_INVERSION copy from user failed \n", __func__);
+			pr_err("%s: MSMFB_DISPLAY_INVERSION copy from user failed\n",
+			       __func__);
 			return ret;
 		}
 
 		ret = msm_fb_set_display_inversion(mfd, lcd_display_inversion);
 		if (ret){
-			LCD_LOG_ERR("%s:set display inversion is failed and ERROR= %d \n", __func__, ret);
+			pr_err("%s: Set display inversion is failed and ERROR=%d\n",
+			       __func__, ret);
 			return ret;
 		}
 		break;
