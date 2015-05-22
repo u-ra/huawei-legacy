@@ -271,43 +271,15 @@ static ssize_t mdss_mdp_show_blank_event(struct device *dev,
 
 	return ret;
 }
-#ifdef CONFIG_HUAWEI_LCD
-static ssize_t mdss_show_panel_status(struct device *dev,
-				      struct device_attribute *attr,
-				      char *buf)
-{
-	struct fb_info *fbi = dev_get_drvdata(dev);
-	struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)fbi->par;
-	struct mdss_panel_data *pdata = NULL;
-	int ret = 0;
-
-	pdata = dev_get_platdata(&mfd->pdev->dev);
-
-	if (pdata && pdata->check_panel_status && mfd->panel_power_on) {
-		ret = pdata->check_panel_status(pdata);
-	} else {
-		pr_err("%s: This panel maybe sleep, or can not support check panel status\n",
-		       __func__);
-	}
-
-	ret = scnprintf(buf, PAGE_SIZE, "%d\n",ret);
-	return ret;
-}
-#endif
 
 static DEVICE_ATTR(msm_fb_type, S_IRUGO, mdss_fb_get_type, NULL);
 static DEVICE_ATTR(msm_fb_split, S_IRUGO, mdss_fb_get_split, NULL);
 static DEVICE_ATTR(show_blank_event, S_IRUGO, mdss_mdp_show_blank_event, NULL);
-#ifdef CONFIG_HUAWEI_LCD
-static DEVICE_ATTR(panel_status, S_IRUGO, mdss_show_panel_status, NULL);
-#endif
+
 static struct attribute *mdss_fb_attrs[] = {
 	&dev_attr_msm_fb_type.attr,
 	&dev_attr_msm_fb_split.attr,
 	&dev_attr_show_blank_event.attr,
-#ifdef CONFIG_HUAWEI_LCD
-	&dev_attr_panel_status.attr,
-#endif
 	NULL,
 };
 
@@ -755,9 +727,6 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 			     int op_enable)
 {
 	struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)info->par;
-#ifdef CONFIG_HUAWEI_LCD
-	struct mdss_panel_data *pdata = NULL;
-#endif
 	int ret = 0;
 
 	if (!op_enable)
@@ -766,13 +735,6 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 	if (mfd->dcm_state == DCM_ENTER)
 		return -EPERM;
 
-#ifdef CONFIG_HUAWEI_LCD
-	pdata = dev_get_platdata(&mfd->pdev->dev);
-	if (!pdata) {
-		pr_err("%s: no panel operation detected!\n", __func__);
-		return -ENODEV;
-	}
-#endif
 	switch (blank_mode) {
 	case FB_BLANK_UNBLANK:
 		if (!mfd->panel_power_on && mfd->mdp.on_fnc) {
