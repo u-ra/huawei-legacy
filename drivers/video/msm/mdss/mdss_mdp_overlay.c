@@ -36,6 +36,7 @@
 #ifdef CONFIG_HUAWEI_KERNEL
 #include "mdss_dsi.h"
 #endif
+
 #define VSYNC_PERIOD 16
 #define BORDERFILL_NDX	0x0BF000BF
 #define CHECK_BOUNDS(offset, size, max_size) \
@@ -1199,6 +1200,7 @@ static int __mdss_mdp_overlay_release_all(struct msm_fb_data_type *mfd,
 		mdss_mdp_overlay_release(mfd, unset_ndx);
 	}
 	mutex_unlock(&mdp5_data->ov_lock);
+
 #ifdef CONFIG_HUAWEI_LCD
 	if (cnt && mfd->panel_power_on)
 #else
