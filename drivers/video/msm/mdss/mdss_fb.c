@@ -722,6 +722,11 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 	case FB_BLANK_UNBLANK:
 		if (!mfd->panel_power_on && mfd->mdp.on_fnc) {
 			ret = mfd->mdp.on_fnc(mfd);
+/* fix the qcom bug: when display system reset, backlight is off */
+#ifdef CONFIG_HUAWEI_LCD
+			if (mfd->panel_info->panel_dead == true)
+				pdata->set_backlight(pdata, mfd->bl_level);
+#endif
 			if (ret == 0) {
 				mfd->panel_power_on = true;
 				mfd->panel_info->panel_dead = false;

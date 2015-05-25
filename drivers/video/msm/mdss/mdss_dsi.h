@@ -286,6 +286,9 @@ struct mdss_dsi_ctrl_pdata {
 	int mdp_busy;
 	struct mutex mutex;
 	struct mutex cmd_mutex;
+#ifdef CONFIG_HUAWEI_KERNEL
+	struct mutex put_mutex;
+#endif
 
 	struct dsi_buf tx_buf;
 	struct dsi_buf rx_buf;

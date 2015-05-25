@@ -111,7 +111,14 @@ static void check_dsi_ctrl_status(struct work_struct *work)
 
 	if (ctl->shared_lock)
 		mutex_lock(ctl->shared_lock);
+
+/* the command lcd needs the ov_lock to lock "ctl->wait_pingpong()" */
+#ifdef CONFIG_HUAWEI_LCD
+	if (pdata->panel_info.type == MIPI_CMD_PANEL)
+		mutex_lock(&mdp5_data->ov_lock);
+#else
 	mutex_lock(&mdp5_data->ov_lock);
+#endif
 
 	/*
 	 * For the command mode panels, we return pan display
@@ -128,11 +135,26 @@ static void check_dsi_ctrl_status(struct work_struct *work)
 
 	pr_debug("%s: DSI ctrl wait for ping pong done\n", __func__);
 
+/* ov_lock and share_lock just lock wait_pingpong, not check_status */
+#ifdef CONFIG_HUAWEI_LCD
+	if (pdata->panel_info.type == MIPI_CMD_PANEL)
+		mutex_unlock(&mdp5_data->ov_lock);
+	if (ctl->shared_lock)
+		mutex_unlock(ctl->shared_lock);
+#endif
+
+#ifndef CONFIG_HUAWEI_LCD
 	mdss_mdp_clk_ctrl(MDP_BLOCK_POWER_ON, false);
+#endif
 	ret = ctrl_pdata->check_status(ctrl_pdata);
+#ifndef CONFIG_HUAWEI_LCD
 	mdss_mdp_clk_ctrl(MDP_BLOCK_POWER_OFF, false);
 
 	mutex_unlock(&mdp5_data->ov_lock);
+#endif
+
+/* share_lock just locks wait_pingpong, so move it to front */
+#ifndef CONFIG_HUAWEI_LCD
 	if (ctl->shared_lock)
 		mutex_unlock(ctl->shared_lock);
 
