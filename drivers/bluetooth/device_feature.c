@@ -43,7 +43,7 @@
 //#include <media/radio-iris.h>
 //#include <hsad/config_interface.h>
 
-extern int fm_debug_mask;
+static int fm_debug_mask;
 
 #undef FMDBG
 #define FMDBG(fmt, args...)\
