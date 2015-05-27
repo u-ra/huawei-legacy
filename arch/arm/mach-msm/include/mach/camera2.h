@@ -67,7 +67,7 @@ struct v4l2_subdev_info {
 	uint16_t fmt;
 	uint16_t order;
 };
-/*add product name field*/
+
 struct msm_camera_sensor_board_info {
 	const char *sensor_name;
 	struct msm_camera_slave_info *slave_info;
@@ -81,8 +81,11 @@ struct msm_camera_sensor_board_info {
 	struct msm_sensor_info_t *sensor_info;
 	struct msm_sensor_init_params *sensor_init_params;
 	const char *misc_regulator;
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 	const char * product_name;
+#endif
 };
+
 enum msm_camera_i2c_cmd_type {
 	MSM_CAMERA_I2C_CMD_WRITE,
 	MSM_CAMERA_I2C_CMD_POLL,
