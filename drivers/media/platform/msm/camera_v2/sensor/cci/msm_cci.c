@@ -647,8 +647,6 @@ static struct msm_cam_clk_info cci_clk_info[] = {
 	{"cci_clk", -1},
 };
 
-//remove msm_cci_reset
-
 static int32_t msm_cci_init(struct v4l2_subdev *sd,
 	struct msm_camera_cci_ctrl *c_ctrl)
 {
@@ -796,7 +794,6 @@ static int32_t msm_cci_config(struct v4l2_subdev *sd,
 		break;
 	case MSM_CCI_GPIO_WRITE:
 		break;
-//remove msm_cci_reset
 	default:
 		rc = -ENOIOCTLCMD;
 	}

@@ -354,13 +354,15 @@ static void msm_vfe32_reg_update(
 {
 	msm_camera_io_w_mb(0xF, vfe_dev->vfe_base + 0x260);
 }
-#if 0
+
+#ifndef CONFIG_HUAWEI_KERNEL_CAMERA
 static uint32_t msm_vfe32_reset_values[ISP_RST_MAX] =
 {
 	0x3FF, /* ISP_RST_HARD reset everything */
 	0x3EF /* ISP_RST_SOFT same as HARD RESET */
 };
 #endif
+
 static long msm_vfe32_reset_hardware(struct vfe_device *vfe_dev ,
 				uint32_t blocking)
 {
@@ -637,7 +639,7 @@ static void msm_vfe32_update_camif_state(
 		vfe_dev->hw_info->vfe_ops.axi_ops.halt(vfe_dev,1);
 		vfe_dev->hw_info->vfe_ops.core_ops.reset_hw(vfe_dev,1);
 		vfe_dev->hw_info->vfe_ops.core_ops.init_hw_reg(vfe_dev);
- 		vfe_dev->axi_data.src_info[VFE_PIX_0].active = 0;
+		vfe_dev->axi_data.src_info[VFE_PIX_0].active = 0;
 	}
 }
 

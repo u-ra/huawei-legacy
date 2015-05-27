@@ -154,7 +154,7 @@ struct msm_vfe_axi_ops {
 struct msm_vfe_core_ops {
 	void (*reg_update) (struct vfe_device *vfe_dev);
 	long (*reset_hw)(struct vfe_device *vfe_dev , uint32_t blocking);
-		
+
 	int (*init_hw) (struct vfe_device *vfe_dev);
 	void (*init_hw_reg) (struct vfe_device *vfe_dev);
 	void (*release_hw) (struct vfe_device *vfe_dev);

@@ -14,6 +14,7 @@
 #include <mach/iommu.h>
 #include <linux/ratelimit.h>
 #include <asm/div64.h>
+
 #include "msm_isp40.h"
 #include "msm_isp_util.h"
 #include "msm_isp_axi_util.h"
@@ -583,7 +584,7 @@ static void msm_vfe40_reg_update(struct vfe_device *vfe_dev)
 	msm_camera_io_w_mb(0xF, vfe_dev->vfe_base + 0x378);
 }
 
-#if 0
+#ifndef CONFIG_HUAWEI_KERNEL_CAMERA
 static uint32_t msm_vfe40_reset_values[ISP_RST_MAX] =
 {
 	0x1FF, /* ISP_RST_HARD reset everything */
@@ -591,9 +592,9 @@ static uint32_t msm_vfe40_reset_values[ISP_RST_MAX] =
 };
 #endif
 
+
 static long msm_vfe40_reset_hardware(struct vfe_device *vfe_dev ,
 	uint32_t blocking)
-			
 {
 	long rc=0;
 	init_completion(&vfe_dev->reset_complete);
@@ -605,14 +606,12 @@ static long msm_vfe40_reset_hardware(struct vfe_device *vfe_dev ,
 		msm_camera_io_w_mb(0x1EF, vfe_dev->vfe_base + 0xC);
 	}
 #ifdef CONFIG_HUAWEI_KERNEL_CAMERA
-		pr_info("%s: \n",__func__);
-		//we print 5 times when camera stream on
-		log_print_num = HW_MAX_SOF_LOG_NUM;
+	pr_info("%s: \n",__func__);
+	//we print 5 times when camera stream on
+	log_print_num = HW_MAX_SOF_LOG_NUM;
 #endif
 
-return rc;
-
-	
+	return rc;
 }
 
 static void msm_vfe40_axi_reload_wm(
@@ -1090,7 +1089,6 @@ static void msm_vfe40_cfg_axi_ub_equal_default(
 	uint8_t num_used_wms = 0;
 	uint32_t prop_size = 0;
 	uint32_t wm_ub_size;
-	//uint32_t delta;
 
 	for (i = 0; i < axi_data->hw_info->num_wm; i++) {
 		if (axi_data->free_wm[i] > 0) {
@@ -1101,16 +1099,12 @@ static void msm_vfe40_cfg_axi_ub_equal_default(
 	prop_size = MSM_ISP40_TOTAL_WM_UB -
 		axi_data->hw_info->min_wm_ub * num_used_wms;
 	for (i = 0; i < axi_data->hw_info->num_wm; i++) {
-		if (axi_data->free_wm[i]) { 
-			/*delta =
-				((unsigned long long)axi_data->wm_image_size[i]
-					* prop_size) / total_image_size;*/
-			
-		uint64_t delta = 0;
-            uint64_t temp = (uint64_t)axi_data->wm_image_size[i]*prop_size;
-            do_div(temp, total_image_size);
-            delta = temp;
-			
+		if (axi_data->free_wm[i]) {
+			uint64_t delta = 0;
+			uint64_t temp = (uint64_t)axi_data->wm_image_size[i]*prop_size;
+
+			do_div(temp, total_image_size);
+			delta = temp;
 			wm_ub_size = axi_data->hw_info->min_wm_ub + delta;
 			msm_camera_io_w(ub_offset << 16 | (wm_ub_size - 1),
 				vfe_dev->vfe_base + VFE40_WM_BASE(i) + 0x10);

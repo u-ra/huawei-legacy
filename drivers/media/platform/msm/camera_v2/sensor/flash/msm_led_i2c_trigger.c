@@ -127,7 +127,6 @@ int32_t msm_led_i2c_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 			rc = fctrl->func_tbl->torch_led_on(fctrl);
 		}
 		break;
-	
 	default:
 		rc = -EFAULT;
 		break;
@@ -192,7 +191,7 @@ int msm_flash_led_release(struct msm_led_flash_ctrl_t *fctrl)
 		flashdata->gpio_conf->gpio_num_info->gpio_num[1],
 		GPIO_OUT_LOW);
 	/*close flash */
-      	if (fctrl->flash_i2c_client && fctrl->reg_setting) {
+	if (fctrl->flash_i2c_client && fctrl->reg_setting) {
 		rc = fctrl->flash_i2c_client->i2c_func_tbl->i2c_write_table(
 			fctrl->flash_i2c_client,
 			fctrl->reg_setting->release_setting);

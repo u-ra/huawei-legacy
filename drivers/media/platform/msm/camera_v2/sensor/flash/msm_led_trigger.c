@@ -128,7 +128,7 @@ static int32_t msm_led_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 		if (fctrl->torch_trigger)
 			led_trigger_event(fctrl->torch_trigger, 0);
 		break;
-#ifdef CONFIG_HUAWEI_KERNEL		
+#ifdef CONFIG_HUAWEI_KERNEL
 	case MSM_CAMERA_LED_TORCH_LOW:
 		if (fctrl->torch_trigger && (torch_state != LED_LOW))
 		{
@@ -336,7 +336,6 @@ torch_failed:
 	}
 
 	rc = msm_led_flash_create_v4lsubdev(pdev, &fctrl);
-
 	if (!rc)
 		msm_led_torch_create_classdev(pdev, &fctrl);
 

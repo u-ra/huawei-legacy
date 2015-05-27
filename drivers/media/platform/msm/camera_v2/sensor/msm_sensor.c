@@ -749,6 +749,7 @@ static int32_t msm_sensor_get_dt_data(struct device_node *of_node,
 		pr_err("%s failed %d\n", __func__, __LINE__);
 		goto ERROR1;
 	}
+
 	ret = of_property_read_string(of_node, "qcom,product-name",
 		&sensordata->product_name);
 	if(ret<0) {
@@ -862,7 +863,7 @@ static int32_t msm_sensor_get_dt_data(struct device_node *of_node,
 		}
 	}
 	/*
-	delete msm_sensor_get_dt_actuator_data() in here, 
+	delete msm_sensor_get_dt_actuator_data() in here,
 	because the of_node is incorrect.
 	*/
 #ifndef CONFIG_HUAWEI_KERNEL_CAMERA
@@ -872,6 +873,7 @@ static int32_t msm_sensor_get_dt_data(struct device_node *of_node,
 		goto ERROR7;
 	}
 #endif
+
 	sensordata->slave_info = kzalloc(sizeof(struct msm_camera_slave_info),
 		GFP_KERNEL);
 	if (!sensordata->slave_info) {
@@ -1001,9 +1003,6 @@ static struct msm_cam_clk_info cam_8974_clk_info[] = {
 };
 #endif
 
-//remove msm_sensor_power_down_without_cci
-
-
 int32_t msm_sensor_power_up(struct msm_sensor_ctrl_t *s_ctrl)
 {
 	int32_t rc = 0, index = 0;
@@ -1119,6 +1118,7 @@ int32_t msm_sensor_power_up(struct msm_sensor_ctrl_t *s_ctrl)
 		pr_err("%s:%d match id failed rc %d\n", __func__, __LINE__, rc);
 		goto power_up_failed;
 	}
+
 #ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 	if (s_ctrl->func_tbl->sensor_match_module)
 		rc = s_ctrl->func_tbl->sensor_match_module(s_ctrl);
@@ -1126,6 +1126,7 @@ int32_t msm_sensor_power_up(struct msm_sensor_ctrl_t *s_ctrl)
         pr_err("%s:%d match module failed rc %d\n", __func__, __LINE__, rc);
     }
 #endif
+
 	CDBG("%s exit\n", __func__);
 	return 0;
 power_up_failed:
@@ -1350,7 +1351,7 @@ int32_t msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl,
 			memcpy(cdata->cfg.sensor_info.product_name,
 					s_ctrl->sensordata->product_name,
 					sizeof(cdata->cfg.sensor_info.product_name));
-		else 
+		else
 			cdata->cfg.sensor_info.product_name[0]='\0';
 		cdata->cfg.sensor_info.session_id =
 			s_ctrl->sensordata->sensor_info->session_id;
@@ -1557,7 +1558,7 @@ int32_t msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl,
 		else if (conf_array.delay)
 			usleep_range(conf_array.delay * 1000, (conf_array.delay
 				* 1000) + 1000);
-		
+
 		kfree(reg_setting);
 		break;
 	}
@@ -2044,7 +2045,7 @@ int32_t msm_sensor_platform_probe(struct platform_device *pdev, void *data)
 	s_ctrl->msm_sd.close_seq = MSM_SD_CLOSE_2ND_CATEGORY | 0x3;
 	msm_sd_register(&s_ctrl->msm_sd);
 	CDBG("%s:%d\n", __func__, __LINE__);
-	
+
 	s_ctrl->func_tbl->sensor_power_down(s_ctrl);
 	CDBG("%s:%d\n", __func__, __LINE__);
 	return rc;

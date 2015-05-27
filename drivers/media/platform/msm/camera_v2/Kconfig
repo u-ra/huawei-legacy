@@ -145,7 +145,7 @@ config OV9724
 		preview and snapshot config at 1280*720 at 30 fps,
 		hfr video at 60, 90 and 120 fps. This sensor driver does
 		not support auto focus.
-		
+
 config HW_S5K4E1
 	bool "Huawei S5K4E1 5M"
 	depends on HUAWEI_KERNEL_CAMERA

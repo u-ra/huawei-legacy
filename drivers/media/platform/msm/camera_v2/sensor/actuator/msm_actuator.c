@@ -439,6 +439,7 @@ static int32_t msm_actuator_power_down(struct msm_actuator_ctrl_t *a_ctrl)
 			gpio_free(a_ctrl->vcm_pwd);
 	}
 #endif
+
 	kfree(a_ctrl->step_position_table);
 	a_ctrl->step_position_table = NULL;
 	kfree(a_ctrl->i2c_reg_tbl);
@@ -744,6 +745,7 @@ static int msm_actuator_close(struct v4l2_subdev *sd,
 	}
 	kfree(a_ctrl->i2c_reg_tbl);
 	a_ctrl->i2c_reg_tbl = NULL;
+
 #ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 	/*check if need set PWD to low*/
 	if(a_ctrl->vcm_enable)
@@ -790,6 +792,7 @@ static long msm_actuator_subdev_ioctl(struct v4l2_subdev *sd,
 		return -ENOIOCTLCMD;
 	}
 }
+
 static int32_t msm_actuator_power_up(struct msm_actuator_ctrl_t *a_ctrl)
 {
 	int rc = 0;
