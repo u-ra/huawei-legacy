@@ -19,7 +19,7 @@
 #include <linux/scatterlist.h>
 #include <linux/mmc/mmc.h>
 #include <linux/mmc/host.h>
-#include <linux/dma-mapping.h
+#include <linux/dma-mapping.h>
 #include "mmc_ops.h"
 #endif
 
@@ -166,7 +166,7 @@ static int mmc_movi_read_cmd(struct mmc_card *card, u8 *buffer)
 {
 	struct mmc_command wcmd={0};
 	struct mmc_data wdata={0};
-	struct mmc_request brq={0}
+	struct mmc_request brq={0};
 	struct scatterlist sg={0};
 	int len = 512;
 
