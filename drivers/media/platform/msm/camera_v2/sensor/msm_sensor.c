@@ -1174,8 +1174,6 @@ power_up_failed:
 	return rc;
 }
 
-
-
 int32_t msm_sensor_power_down(struct msm_sensor_ctrl_t *s_ctrl)
 {
 	int32_t index = 0;
@@ -1980,7 +1978,6 @@ int32_t msm_sensor_platform_probe(struct platform_device *pdev, void *data)
 			&msm_sensor_cci_func_tbl;
 	if (!s_ctrl->sensor_v4l2_subdev_ops)
 		s_ctrl->sensor_v4l2_subdev_ops = &msm_sensor_subdev_ops;
-
 	s_ctrl->clk_info = kzalloc(sizeof(cam_8974_clk_info),
 		GFP_KERNEL);
 	if (!s_ctrl->clk_info) {
@@ -1990,7 +1987,6 @@ int32_t msm_sensor_platform_probe(struct platform_device *pdev, void *data)
 	}
 	memcpy(s_ctrl->clk_info, cam_8974_clk_info, sizeof(cam_8974_clk_info));
 	s_ctrl->clk_info_size = ARRAY_SIZE(cam_8974_clk_info);
-
 	rc = s_ctrl->func_tbl->sensor_power_up(s_ctrl);
 	if (rc < 0) {
 		pr_err("%s %s power up failed\n", __func__,
