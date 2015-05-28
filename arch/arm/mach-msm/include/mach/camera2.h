@@ -120,8 +120,6 @@ struct eeprom_memory_map_t {
 	struct eeprom_map_t pageen;
 	struct eeprom_map_t poll;
 	struct eeprom_map_t mem;
-	/*add for muti i2c slave*/
-	struct eeprom_map_t slave_addr;
 };
 
 struct msm_camera_power_ctrl_t {
