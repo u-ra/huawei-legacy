@@ -60,7 +60,6 @@ struct msm_sensor_ctrl_t {
 	enum cci_i2c_master_t cci_i2c_master;
 	struct msm_camera_sensor_board_info *sensordata;
 	struct msm_sensor_power_setting_array power_setting_array;
-	struct msm_sensor_power_setting_array power_down_setting_array;
 	struct mutex *msm_sensor_mutex;
 
 	struct msm_camera_i2c_client *sensor_i2c_client;
