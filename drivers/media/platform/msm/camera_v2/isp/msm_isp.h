@@ -148,7 +148,7 @@ struct msm_vfe_axi_ops {
 	uint32_t (*get_wm_mask) (uint32_t irq_status0, uint32_t irq_status1);
 	uint32_t (*get_comp_mask) (uint32_t irq_status0, uint32_t irq_status1);
 	uint32_t (*get_pingpong_status) (struct vfe_device *vfe_dev);
-	long (*halt) (struct vfe_device *vfe_dev,uint32_t blocking);
+	long (*halt) (struct vfe_device *vfe_dev, uint32_t blocking);
 };
 
 struct msm_vfe_core_ops {
@@ -285,7 +285,6 @@ struct msm_vfe_axi_stream {
 	enum msm_vfe_axi_stream_type stream_type;
 	uint32_t vt_enable;
 	uint32_t frame_based;
-	enum msm_vfe_frame_skip_pattern frame_skip_pattern;
 	uint32_t framedrop_period;
 	uint32_t framedrop_pattern;
 	uint32_t num_burst_capture;/*number of frame to capture*/
@@ -306,6 +305,14 @@ struct msm_vfe_axi_stream {
 	uint32_t runtime_num_burst_capture;
 	uint8_t runtime_framedrop_update;
 	uint32_t runtime_output_format;
+	enum msm_vfe_frame_skip_pattern frame_skip_pattern;
+};
+
+enum msm_vfe_overflow_state {
+	NO_OVERFLOW,
+	OVERFLOW_DETECTED,
+	HALT_REQUESTED,
+	RESTART_REQUESTED,
 };
 
 struct msm_vfe_axi_composite_info {
@@ -399,13 +406,6 @@ struct msm_vfe_tasklet_queue_cmd {
 };
 
 #define MSM_VFE_TASKLETQ_SIZE 200
-
-enum msm_vfe_overflow_state {
-	NO_OVERFLOW,
-	OVERFLOW_DETECTED,
-	HALT_REQUESTED,
-	RESTART_REQUESTED,
-};
 
 struct msm_vfe_error_info {
 	atomic_t overflow_state;

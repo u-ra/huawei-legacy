@@ -366,7 +366,7 @@ static uint32_t msm_vfe32_reset_values[ISP_RST_MAX] =
 static long msm_vfe32_reset_hardware(struct vfe_device *vfe_dev ,
 				uint32_t blocking)
 {
-	long rc=0;
+	long rc = 0;
 	init_completion(&vfe_dev->reset_complete);
 	if (blocking) {
 		msm_camera_io_w_mb(0x1FF, vfe_dev->vfe_base + 0xC);
