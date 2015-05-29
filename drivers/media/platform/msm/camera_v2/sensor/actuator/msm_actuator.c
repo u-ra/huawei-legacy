@@ -306,8 +306,10 @@ static int32_t msm_actuator_move_focus(
 			a_ctrl->curr_region_index += sign_dir;
 		}
 		a_ctrl->curr_step_pos = target_step_pos;
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 		a_ctrl->current_lens_pos = a_ctrl->step_position_table[a_ctrl->curr_step_pos];
 		CDBG("curr_step_pos=%d, current_lens_pos=%d\n", a_ctrl->curr_step_pos, a_ctrl->current_lens_pos);
+#endif
 	}
 
 	reg_setting.reg_setting = a_ctrl->i2c_reg_tbl;
@@ -394,6 +396,7 @@ static int32_t msm_actuator_set_default_focus(
 	return rc;
 }
 
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 static int32_t msm_actuator_reset(struct msm_actuator_ctrl_t *a_ctrl)
 {
 	int32_t rc  = 0;
@@ -416,29 +419,30 @@ static int32_t msm_actuator_reset(struct msm_actuator_ctrl_t *a_ctrl)
 	a_ctrl->current_lens_pos= 0;
 	return rc;
 }
+#endif
 
 static int32_t msm_actuator_power_down(struct msm_actuator_ctrl_t *a_ctrl)
 {
 	int32_t rc = 0;
 	CDBG("Enter\n");
+
 #ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 	/*if pwd gpio is high then we set to low*/
-	if (a_ctrl->vcm_enable && a_ctrl->vcm_power_up) {
-		rc = gpio_direction_output(a_ctrl->vcm_pwd, 0);
-		if (!rc)
-		{
-			//output to low success
-			a_ctrl->vcm_power_up = 0;
-			gpio_free(a_ctrl->vcm_pwd);
-		}
-	}
-#else
+	if (a_ctrl->vcm_power_up)
+#endif
 	if (a_ctrl->vcm_enable) {
 		rc = gpio_direction_output(a_ctrl->vcm_pwd, 0);
 		if (!rc)
-			gpio_free(a_ctrl->vcm_pwd);
-	}
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
+		{
+			//output to low success
+			a_ctrl->vcm_power_up = 0;
 #endif
+			gpio_free(a_ctrl->vcm_pwd);
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
+		}
+#endif
+	}
 
 	kfree(a_ctrl->step_position_table);
 	a_ctrl->step_position_table = NULL;
@@ -655,11 +659,13 @@ static int32_t msm_actuator_config(struct msm_actuator_ctrl_t *a_ctrl,
 		if (rc < 0)
 			pr_err("actuator_set_position failed %d\n", rc);
 		break;
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 	case CFG_ACTUATOR_RESET:
 		rc = msm_actuator_reset(a_ctrl);
 		if (rc < 0)
 			pr_err("msm_actuator_reset failed %d\n", rc);
 		break;
+#endif
 	default:
 		break;
 	}
@@ -691,7 +697,9 @@ static struct msm_camera_i2c_fn_t msm_sensor_cci_func_tbl = {
 	.i2c_read = msm_camera_cci_i2c_read,
 	.i2c_read_seq = msm_camera_cci_i2c_read_seq,
 	.i2c_write = msm_camera_cci_i2c_write,
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 	.i2c_write_seq = msm_camera_cci_i2c_write_seq,
+#endif
 	.i2c_write_table = msm_camera_cci_i2c_write_table,
 	.i2c_write_seq_table = msm_camera_cci_i2c_write_seq_table,
 	.i2c_write_table_w_microdelay =

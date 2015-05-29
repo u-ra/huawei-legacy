@@ -750,6 +750,7 @@ static int32_t msm_sensor_get_dt_data(struct device_node *of_node,
 		goto ERROR1;
 	}
 
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 	ret = of_property_read_string(of_node, "qcom,product-name",
 		&sensordata->product_name);
 	if(ret<0) {
@@ -760,6 +761,7 @@ static int32_t msm_sensor_get_dt_data(struct device_node *of_node,
 	if(ret<0) {
 		printk("CAM_DBG :no ae_meter_type\n");
 	}
+#endif
 	rc = of_property_read_u32(of_node, "qcom,sensor-mode",
 		&sensordata->sensor_init_params->modes_supported);
 	CDBG("%s qcom,sensor-mode %d, rc %d\n", __func__,
@@ -1338,12 +1340,14 @@ int32_t msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl,
 		memcpy(cdata->cfg.sensor_info.sensor_name,
 			s_ctrl->sensordata->sensor_name,
 			sizeof(cdata->cfg.sensor_info.sensor_name));
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 		if( s_ctrl->sensordata->product_name)
 			memcpy(cdata->cfg.sensor_info.product_name,
 					s_ctrl->sensordata->product_name,
 					sizeof(cdata->cfg.sensor_info.product_name));
 		else
 			cdata->cfg.sensor_info.product_name[0]='\0';
+#endif
 		cdata->cfg.sensor_info.session_id =
 			s_ctrl->sensordata->sensor_info->session_id;
 		for (i = 0; i < SUB_MODULE_MAX; i++)
@@ -1535,13 +1539,13 @@ int32_t msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl,
 		for (i = 0; i < conf_array.size; i++) {
 			if(conf_array.reg_setting[i].data_type){
 				rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_write(
-					s_ctrl->sensor_i2c_client, conf_array.reg_setting[i].reg_addr, conf_array.reg_setting[i].reg_data, 
-					conf_array.reg_setting[i].data_type);
+					s_ctrl->sensor_i2c_client, conf_array.reg_setting[i].reg_addr,
+					conf_array.reg_setting[i].reg_data, conf_array.reg_setting[i].data_type);
 			}
-			else{
+			else {
 				rc = s_ctrl->sensor_i2c_client->i2c_func_tbl->i2c_write(
-					s_ctrl->sensor_i2c_client, conf_array.reg_setting[i].reg_addr, conf_array.reg_setting[i].reg_data, 
-					conf_array.data_type);
+					s_ctrl->sensor_i2c_client, conf_array.reg_setting[i].reg_addr,
+					conf_array.reg_setting[i].reg_data, conf_array.data_type);
 			}
 		}
 		if (conf_array.delay > 20)

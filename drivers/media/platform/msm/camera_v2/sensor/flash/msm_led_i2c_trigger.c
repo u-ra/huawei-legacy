@@ -22,10 +22,6 @@
 #include <linux/debugfs.h>
 
 #define FLASH_NAME "camera-led-flash"
-#define FLASH_FLAG_REGISTER 0x0B
-
-#define FLASH_CHIP_ID_MASK 0x07
-#define FLASH_CHIP_ID 0x0
 
 /*#define CONFIG_MSMB_CAMERA_DEBUG*/
 #undef CDBG
@@ -35,7 +31,8 @@
 #define CDBG(fmt, args...) do { } while (0)
 #endif
 
-#ifdef CONFIG_HUAWEI_KERNEL
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
+#define FLASH_FLAG_REGISTER 0x0B
 #define TEMPERATUE_NORMAL 1  //normal
 #define TEMPERATUE_ABNORMAL 0 //abnormal
 static bool led_temperature = TEMPERATUE_NORMAL; //led temperature status
@@ -66,7 +63,7 @@ int32_t msm_led_i2c_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 		pr_err("failed\n");
 		return -EINVAL;
 	}
-#ifdef CONFIG_HUAWEI_KERNEL
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 	//if led status is off and led status abnormal close the led
 	if((TEMPERATUE_ABNORMAL == led_temperature) && (MSM_CAMERA_LED_TORCH_POWER_NORMAL != cfg->cfgtype))
 	{
@@ -102,7 +99,7 @@ int32_t msm_led_i2c_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 		if (fctrl->func_tbl->flash_led_high)
 			rc = fctrl->func_tbl->flash_led_high(fctrl);
 		break;
-#ifdef CONFIG_HUAWEI_KERNEL
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 	//normal
 	case MSM_CAMERA_LED_TORCH_POWER_NORMAL:
 		pr_err("resume the flash.\n");
@@ -118,7 +115,6 @@ int32_t msm_led_i2c_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 		{
 			rc = fctrl->func_tbl->flash_led_off(fctrl);
 		}
-#endif
 	case MSM_CAMERA_LED_TORCH_LOW:
 	case MSM_CAMERA_LED_TORCH_MEDIUM:
 	case MSM_CAMERA_LED_TORCH_LOW_HIGH:
@@ -127,6 +123,7 @@ int32_t msm_led_i2c_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 			rc = fctrl->func_tbl->torch_led_on(fctrl);
 		}
 		break;
+#endif
 	default:
 		rc = -EFAULT;
 		break;
@@ -190,6 +187,7 @@ int msm_flash_led_release(struct msm_led_flash_ctrl_t *fctrl)
 	gpio_set_value_cansleep(
 		flashdata->gpio_conf->gpio_num_info->gpio_num[1],
 		GPIO_OUT_LOW);
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 	/*close flash */
 	if (fctrl->flash_i2c_client && fctrl->reg_setting) {
 		rc = fctrl->flash_i2c_client->i2c_func_tbl->i2c_write_table(
@@ -198,6 +196,7 @@ int msm_flash_led_release(struct msm_led_flash_ctrl_t *fctrl)
 		if (rc < 0)
 			pr_err("%s:%d failed\n", __func__, __LINE__);
 	}
+#endif
 	rc = msm_camera_request_gpio_table(
 		flashdata->gpio_conf->cam_gpio_req_tbl,
 		flashdata->gpio_conf->cam_gpio_req_tbl_size, 0);
@@ -285,6 +284,8 @@ int msm_flash_led_high(struct msm_led_flash_ctrl_t *fctrl)
 
 	return rc;
 }
+
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 /****************************************************************************
 * FunctionName: msm_flash_clear_err_and_unlock;
 * Description : clear the error and unlock the IC ;
@@ -351,6 +352,8 @@ int msm_torch_led_on(struct msm_led_flash_ctrl_t *fctrl)
 
     return rc;
 }
+#endif
+
 static int32_t msm_flash_init_gpio_pin_tbl(struct device_node *of_node,
 	struct msm_camera_gpio_conf *gconf, uint16_t *gpio_array,
 	uint16_t gpio_array_size)
@@ -645,11 +648,13 @@ int msm_flash_i2c_probe(struct i2c_client *client,
 		pr_err("i2c_check_functionality failed\n");
 		goto probe_failure;
 	}
-    if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_I2C_BLOCK))
-	{
-	    pr_err("i2c_check_functionality failed I2C_FUNC_SMBUS_I2C_BLOCK\n");
+
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_I2C_BLOCK)) {
+		pr_err("i2c_check_functionality failed I2C_FUNC_SMBUS_I2C_BLOCK\n");
 		goto probe_failure;
 	}
+#endif
 
 	fctrl = (struct msm_led_flash_ctrl_t *)(id->driver_data);
 	if (fctrl->flash_i2c_client)
@@ -679,7 +684,10 @@ int msm_flash_i2c_probe(struct i2c_client *client,
 		return rc;
 	}
 
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 	fctrl->flash_i2c_client->client->addr = fctrl->flash_i2c_client->client->addr<<1;
+#endif
+
 	if (!fctrl->flash_i2c_client->i2c_func_tbl)
 		fctrl->flash_i2c_client->i2c_func_tbl =
 			&msm_sensor_qup_func_tbl;

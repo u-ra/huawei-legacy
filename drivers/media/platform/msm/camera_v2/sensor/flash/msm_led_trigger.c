@@ -32,7 +32,7 @@ extern int32_t msm_led_torch_create_classdev(
 static enum flash_type flashtype;
 static struct msm_led_flash_ctrl_t fctrl;
 
-#ifdef CONFIG_HUAWEI_KERNEL
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 #define LED_OFF 1
 #define LED_ON 0
 #define LED_TORCH_DELAY 200  //time unit = ms
@@ -67,7 +67,7 @@ static int32_t msm_led_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 		return -EINVAL;
 	}
 
-#ifdef CONFIG_HUAWEI_KERNEL
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 	if((LED_OFF == led_status) && (MSM_CAMERA_LED_TORCH_POWER_NORMAL != cfg->cfgtype))
 	{
 		cfg->cfgtype = MSM_CAMERA_LED_OFF;
@@ -82,7 +82,9 @@ static int32_t msm_led_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 				led_trigger_event(fctrl->flash_trigger[i], 0);
 		if (fctrl->torch_trigger)
 			led_trigger_event(fctrl->torch_trigger, 0);
-              torch_state = 0;
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
+		torch_state = 0;
+#endif
 		break;
 
 	case MSM_CAMERA_LED_LOW:
@@ -128,7 +130,7 @@ static int32_t msm_led_trigger_config(struct msm_led_flash_ctrl_t *fctrl,
 		if (fctrl->torch_trigger)
 			led_trigger_event(fctrl->torch_trigger, 0);
 		break;
-#ifdef CONFIG_HUAWEI_KERNEL
+#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
 	case MSM_CAMERA_LED_TORCH_LOW:
 		if (fctrl->torch_trigger && (torch_state != LED_LOW))
 		{
