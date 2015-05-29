@@ -1329,7 +1329,7 @@ int32_t msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl,
 {
 	struct sensorb_cfg_data *cdata = (struct sensorb_cfg_data *)argp;
 	long rc = 0;
-	int32_t i = 0, retries = 3;
+	int32_t i = 0;
 	mutex_lock(s_ctrl->msm_sensor_mutex);
 	CDBG("%s:%d %s cfgtype = %d\n", __func__, __LINE__,
 		s_ctrl->sensordata->sensor_name, cdata->cfgtype);
@@ -1740,19 +1740,10 @@ int32_t msm_sensor_config(struct msm_sensor_ctrl_t *s_ctrl,
 		if (s_ctrl->func_tbl->sensor_power_up) {
 			if (s_ctrl->sensordata->misc_regulator)
 				msm_sensor_misc_regulator(s_ctrl, 1);
-				do{
-					rc = s_ctrl->func_tbl->sensor_power_up(s_ctrl);
-					if (rc < 0 && retries > 1) {
-						pr_err("YOOY: %s:%d failed rc %ld retries=%d\n", __func__,
-							__LINE__, rc ,retries);
-						msleep(5);
-						continue;
-					}else{
-						break;
-					}
-				}while(--retries);
+
+			rc = s_ctrl->func_tbl->sensor_power_up(s_ctrl);
 			if (rc < 0) {
-				pr_err("%s:%d failed rc %ld retries out!!!!\n", __func__,
+				pr_err("%s:%d failed rc %ld\n", __func__,
 					__LINE__, rc);
 				break;
 			}
