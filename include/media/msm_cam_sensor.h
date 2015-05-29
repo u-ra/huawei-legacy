@@ -359,16 +359,6 @@ enum camb_position_t {
 	FRONT_CAMERA_B,
 };
 
-enum camb_auto_exposure_mode_type {
-    CAMB_AEC_MODE_FRAME_AVERAGE,
-    CAMB_AEC_MODE_CENTER_WEIGHTED,
-    CAMB_AEC_MODE_SPOT_METERING,
-    CAMB_AEC_MODE_SMART_METERING,
-    CAMB_AEC_MODE_USER_METERING,
-    CAMB_AEC_MODE_SPOT_METERING_ADV,
-    CAMB_AEC_MODE_CENTER_WEIGHTED_ADV,
-    CAMB_AEC_MODE_MAX
-};
 enum camerab_mode_t {
 	CAMERA_MODE_2D_B = (1<<0),
 	CAMERA_MODE_3D_B = (1<<1)
@@ -381,9 +371,6 @@ struct msm_sensor_init_params {
 	enum camb_position_t position;
 	/* sensor mount angle */
 	uint32_t            sensor_mount_angle;
-#ifdef CONFIG_HUAWEI_KERNEL_CAMERA
-	enum camb_auto_exposure_mode_type ae_meter_type;
-#endif
 };
 
 struct sensorb_cfg_data {

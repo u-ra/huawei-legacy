@@ -756,11 +756,6 @@ static int32_t msm_sensor_get_dt_data(struct device_node *of_node,
 	if(ret<0) {
 		printk("CAM_DBG :no product_name\n");
 	}
-	ret = of_property_read_u32(of_node, "qcom,sensor-ae-meter-type",
-		&sensordata->sensor_init_params->ae_meter_type);
-	if(ret<0) {
-		printk("CAM_DBG :no ae_meter_type\n");
-	}
 #endif
 	rc = of_property_read_u32(of_node, "qcom,sensor-mode",
 		&sensordata->sensor_init_params->modes_supported);
