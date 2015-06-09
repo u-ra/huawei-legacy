@@ -46,12 +46,50 @@
 #include <mach/rpm-regulator-smd.h>
 #include <mach/msm_smem.h>
 #include <linux/msm_thermal.h>
+#ifdef CONFIG_HUAWEI_KERNEL
+#include <linux/persistent_ram.h>
+#endif
 #include "board-dt.h"
 #include "clock.h"
 #include "platsmp.h"
 #include "spm.h"
 #include "pm.h"
 #include "modem_notifier.h"
+
+#ifdef CONFIG_HUAWEI_KERNEL
+#define HW_PERSISTENT_RAM_PHYS 0x12D00000
+#define HW_PERSISTENT_RAM_SIZE SZ_1M
+
+static struct persistent_ram_descriptor hw_persistent_ram_desc[] = {
+	{
+		.name = "ram_console",
+		.size = HW_PERSISTENT_RAM_SIZE,
+	},
+};
+
+static struct persistent_ram hw_persistent_ram = {
+	.start     = HW_PERSISTENT_RAM_PHYS,
+	.size      = HW_PERSISTENT_RAM_SIZE,
+	.num_descs = ARRAY_SIZE(hw_persistent_ram_desc),
+	.descs     = hw_persistent_ram_desc,
+};
+
+static struct resource hw_ram_console_res[] = {
+	{
+		.start = HW_PERSISTENT_RAM_PHYS,
+		.end   = HW_PERSISTENT_RAM_PHYS
+			+ HW_PERSISTENT_RAM_SIZE - 1,
+		.flags = IORESOURCE_MEM,
+	},
+};
+
+static struct platform_device hw_ram_console = {
+	.name = "ram_console",
+	.id = -1,
+	.num_resources = ARRAY_SIZE(hw_ram_console_res),
+	.resource = hw_ram_console_res,
+};
+#endif
 
 static struct memtype_reserve msm8226_reserve_table[] __initdata = {
 	[MEMTYPE_SMI] = {
@@ -149,6 +187,14 @@ static const char *msm8226_dt_match[] __initconst = {
 };
 
 #ifdef CONFIG_HUAWEI_KERNEL
+static void __init msm8226_early_ram_console(void)
+{
+	persistent_ram_early_init(&hw_persistent_ram);
+	platform_device_register(&hw_ram_console);
+}
+#endif
+
+#ifdef CONFIG_HUAWEI_KERNEL
 DT_MACHINE_START(MSM8226_DT, "Qualcomm MSM 8926 (Flattened Device Tree)")
 #else
 DT_MACHINE_START(MSM8226_DT, "Qualcomm MSM 8226 (Flattened Device Tree)")
@@ -164,4 +210,7 @@ DT_MACHINE_START(MSM8226_DT, "Qualcomm MSM 8226 (Flattened Device Tree)")
 	.init_very_early = msm8226_early_memory,
 	.restart = msm_restart,
 	.smp = &arm_smp_ops,
+#ifdef CONFIG_HUAWEI_KERNEL
+	.init_early = msm8226_early_ram_console,
+#endif
 MACHINE_END
